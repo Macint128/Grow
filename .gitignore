@@ -1,0 +1,4 @@
+# .gitignore
+.env
+bot.js
+node_modules/

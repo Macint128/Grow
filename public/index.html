@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌱 Grow a Garden 정보</title>
+</head>
+<body>
+  <h1>🌼 Grow a Garden 상태판</h1>
+
+  <h2>🛍️ 상점 재고</h2>
+  <pre id="stock">불러오는 중...</pre>
+
+  <h2>📣 어드민 메시지</h2>
+  <pre id="admin">불러오는 중...</pre>
+
+  <h2>🌤️ 날씨</h2>
+  <pre id="weather">불러오는 중...</pre>
+
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('stock').textContent = data.stock;
+        document.getElementById('admin').textContent = data.admin;
+        document.getElementById('weather').textContent = data.weather;
+      });
+  </script>
+</body>
+</html>

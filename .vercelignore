@@ -1,0 +1,5 @@
+# .vercelignore
+.env
+bot.js
+index.js
+node_modules
