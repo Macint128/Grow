@@ -1,225 +1,590 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>My 2D Garden</title>
-  <link rel="apple-touch-icon" href="icon.png" />
-  <meta name="apple-mobile-web-app-title" content="Garden Life" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body {
-      background: linear-gradient(to bottom, #a8e6a2, #f4e2d8);
-      overflow: hidden;
-      height: 100vh;
-    }
-    header {
-      background: linear-gradient(to bottom, #5cb85c, #3e8e41);
-      padding: 10px;
-      color: white;
-      text-align: center;
-      font-size: 1.2em;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 10;
-    }
-
-    #moneyDisplay {
-      position: fixed;
-      top: 45px;
-      left: 10px;
-      background: #fff;
-      border-radius: 5px;
-      padding: 5px 10px;
-      box-shadow: 1px 1px 3px #aaa;
-      z-index: 10;
-    }
-
-    #garden {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-gap: 5px;
-      padding: 90px 10px 70px;
-    }
-
-    .tile {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background-color: #c19a6b;
-      border-radius: 8px;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .tile:hover {
-      transform: scale(1.03);
-    }
-
-    .plant {
-      position: absolute;
-      width: 70%;
-      left: 15%;
-      bottom: 5%;
-      text-align: center;
-      animation: pop 0.4s ease;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0); }
-      100% { transform: scale(1); }
-    }
-
-    #seedBox {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background-color: #ffffffcc;
-      border-top: 2px solid #ccc;
-      text-align: center;
-      padding: 10px;
-      font-size: 1em;
-    }
-
-    .no-stock {
-      color: red;
-      font-weight: bold;
-    }
-
-    .Common { color: gray; }
-    .Uncommon { color: green; }
-    .Rare { color: blue; }
-    .Legendary { color: orange; }
-    .Mythical { color: purple; }
-    .Divine { color: gold; }
-    .Prismatic { background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; color: transparent; font-weight: bold; }
-
-    #pokedex {
-      position: fixed;
-      top: 45px;
-      right: 10px;
-      background: #fff;
-      border-radius: 5px;
-      padding: 5px 10px;
-      box-shadow: 1px 1px 3px #aaa;
-      z-index: 10;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    #pokedex h3 {
-      margin-bottom: 5px;
-      text-align: center;
-    }
-
-    #pokedex ul {
-      list-style: none;
-      padding: 0;
-      font-size: 0.9em;
-    }
-  </style>
+<meta charset="UTF-8" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Garden Life: Grow & Harvest</title>
+<link rel="apple-touch-icon" href="icon.png" />
+<meta name="apple-mobile-web-app-title" content="Garden Life" />
+<style>
+  *{margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+  body {
+    background: linear-gradient(to bottom, #a8e6a2, #f4e2d8);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(to bottom, #5cb85c, #3e8e41);
+    color: white;
+    text-align: center;
+    font-size: 1.3em;
+    padding: 12px 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+  }
+  #infoBar {
+    display: flex;
+    justify-content: space-between;
+    background: #fffdfa;
+    padding: 8px 15px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+    font-weight: 600;
+    font-size: 0.95em;
+    position: fixed;
+    top: 52px;
+    width: 100%;
+    z-index: 100;
+  }
+  #moneyDisplay, #weatherDisplay, #petsDisplay {
+    min-width: 100px;
+  }
+  #garden {
+    margin-top: 100px;
+    flex-grow: 1;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 7px;
+    overflow-y: auto;
+  }
+  .tile {
+    position: relative;
+    background-color: #c19a6b;
+    border-radius: 10px;
+    aspect-ratio: 1/1;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px #7b573a;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    user-select: none;
+    transition: transform 0.15s ease;
+  }
+  .tile:hover {
+    transform: scale(1.05);
+  }
+  .plant {
+    font-size: 2.5em;
+    position: relative;
+    bottom: 6px;
+    animation: popGrow 0.5s ease forwards;
+    user-select: none;
+  }
+  @keyframes popGrow {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 1;}
+    100% { transform: scale(1); }
+  }
+  /* 등급별 색상 텍스트 */
+  .Common { color: gray; }
+  .Uncommon { color: green; }
+  .Rare { color: blue; }
+  .Legendary { color: orange; }
+  .Mythical { color: purple; }
+  .Divine { color: gold; }
+  .Prismatic { 
+    background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); 
+    -webkit-background-clip: text; color: transparent; font-weight: bold; 
+  }
+  #seedBox {
+    background: #fffdfa;
+    border-top: 2px solid #b1a27c;
+    padding: 12px;
+    font-size: 1.1em;
+    text-align: center;
+    font-weight: 700;
+    user-select: none;
+  }
+  #seedBox .no-stock {
+    color: red;
+    font-weight: 900;
+  }
+  /* 도감 */
+  #pokedex {
+    position: fixed;
+    top: 90px;
+    right: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fffdfa;
+    border-radius: 8px;
+    box-shadow: 1px 1px 8px rgba(0,0,0,0.2);
+    padding: 8px 15px;
+    width: 180px;
+    font-size: 0.9em;
+    z-index: 110;
+  }
+  #pokedex h3 {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  #pokedex ul {
+    list-style: none;
+    padding-left: 10px;
+  }
+  #pokedex li {
+    margin-bottom: 4px;
+  }
+  /* 즐겨찾기 표시 */
+  .favorited {
+    box-shadow: 0 0 10px 3px gold inset;
+    border-radius: 10px;
+  }
+  /* 성장 중인 작물 흐릿 */
+  .growing {
+    filter: brightness(0.7);
+    cursor: wait;
+  }
+  /* 돌연변이 효과 (반짝임) */
+  .mutated {
+    animation: flicker 1.5s infinite;
+    filter: drop-shadow(0 0 5px magenta);
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  /* 펫 표시 */
+  #petArea {
+    position: fixed;
+    bottom: 70px;
+    left: 10px;
+    background: #fffdfa;
+    border-radius: 10px;
+    box-shadow: 1px 1px 6px rgba(0,0,0,0.2);
+    padding: 10px 15px;
+    font-size: 1em;
+    max-width: 300px;
+    z-index: 120;
+  }
+  #petArea span {
+    margin-right: 12px;
+    cursor: default;
+  }
+  /* 장비 표시 */
+  #gearArea {
+    position: fixed;
+    bottom: 70px;
+    right: 10px;
+    background: #fffdfa;
+    border-radius: 10px;
+    box-shadow: 1px 1px 6px rgba(0,0,0,0.2);
+    padding: 10px 15px;
+    font-size: 1em;
+    max-width: 300px;
+    z-index: 120;
+  }
+  /* 버튼 스타일 */
+  button {
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    background: #5cb85c;
+    color: white;
+    font-weight: 600;
+    padding: 6px 12px;
+    margin-left: 8px;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #4a9e4a;
+  }
+  /* 선호 표시 토글 버튼 */
+  .favorite-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(255 215 0 / 0.9);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-weight: bold;
+    color: #444;
+    text-align: center;
+    line-height: 24px;
+    user-select: none;
+    cursor: pointer;
+    box-shadow: 0 0 6px 2px gold;
+  }
+  .favorite-btn.favorited {
+    color: #ff6600;
+    box-shadow: 0 0 10px 3px orange;
+  }
+</style>
 </head>
 <body>
-  <header>🌱 Welcome to My 2D Garden</header>
-  <div id="moneyDisplay">💰 0</div>
-  <div id="pokedex">
-    <h3>📘 도감</h3>
-    <ul id="dexList"></ul>
-  </div>
-  <div id="garden"></div>
-  <div id="seedBox">
-    Current Seed: <span id="seedName">Loading...</span>
-  </div>
 
-  <script>
-    const seedNameSpan = document.getElementById('seedName');
-    const garden = document.getElementById('garden');
-    const moneyDisplay = document.getElementById('moneyDisplay');
-    const dexList = document.getElementById('dexList');
+<header>🌿 Garden Life: Grow & Harvest</header>
 
-    const seeds = [
-      { name: 'Carrot', emoji: '🥕', grade: 'Common', value: 1 },
-      { name: 'Strawberry', emoji: '🍓', grade: 'Common', value: 1 },
-      { name: 'Blueberry', emoji: '🫐', grade: 'Uncommon', value: 2 },
-      { name: 'Orange Tulip', emoji: '🌷', grade: 'Uncommon', value: 2 },
-      { name: 'Tomato', emoji: '🍅', grade: 'Rare', value: 4 },
-      { name: 'Daffodil', emoji: '🌼', grade: 'Rare', value: 4 },
-      { name: 'Watermelon', emoji: '🍉', grade: 'Legendary', value: 7 },
-      { name: 'Pumpkin', emoji: '🎃', grade: 'Legendary', value: 7 },
-      { name: 'Apple', emoji: '🍎', grade: 'Legendary', value: 7 },
-      { name: 'Bamboo', emoji: '🎋', grade: 'Legendary', value: 7 },
-      { name: 'Coconut', emoji: '🥥', grade: 'Mythical', value: 10 },
-      { name: 'Cactus', emoji: '🌵', grade: 'Mythical', value: 10 },
-      { name: 'Dragon Fruit', emoji: '🐉', grade: 'Mythical', value: 10 },
-      { name: 'Mango', emoji: '🥭', grade: 'Mythical', value: 10 },
-      { name: 'Grape', emoji: '🍇', grade: 'Divine', value: 15 },
-      { name: 'Mushroom', emoji: '🍄', grade: 'Divine', value: 15 },
-      { name: 'Pepper', emoji: '🌶️', grade: 'Divine', value: 15 },
-      { name: 'Cacao', emoji: '🍫', grade: 'Divine', value: 15 },
-      { name: 'Beanstalk', emoji: '🌱', grade: 'Prismatic', value: 25 },
-      { name: 'Ember Lily', emoji: '🔥', grade: 'Prismatic', value: 25 },
-      { name: 'Sugar Apple', emoji: '🍏', grade: 'Prismatic', value: 25 },
-      { name: 'Burning Bud', emoji: '🌸', grade: 'Prismatic', value: 25 },
-      { name: 'Giant Pinecone', emoji: '🌲', grade: 'Prismatic', value: 25 }
-    ];
+<div id="infoBar">
+  <div id="moneyDisplay">💰 0¢</div>
+  <div id="weatherDisplay">🌤 Weather: Clear</div>
+  <div id="petsDisplay">🐾 Pets: None</div>
+</div>
 
-    let currentSeed = null;
-    let money = 0;
-    let pokedex = new Set();
+<div id="garden"></div>
 
-    function updateMoneyDisplay() {
-      moneyDisplay.textContent = `💰 ${money}`;
-    }
+<div id="seedBox">Current Seed: <span id="seedName">Loading...</span></div>
 
-    function updatePokedex(seedName) {
-      if (!pokedex.has(seedName)) {
-        pokedex.add(seedName);
-        const li = document.createElement('li');
-        li.textContent = seedName;
-        dexList.appendChild(li);
+<div id="pokedex">
+  <h3>📘 Seed Pokedex</h3>
+  <ul id="dexList"></ul>
+</div>
+
+<div id="petArea">
+  <strong>🐾 Pets Owned:</strong> <span id="petList">None</span>
+</div>
+
+<div id="gearArea">
+  <strong>🛠️ Gear:</strong> <span id="gearList">None</span>
+</div>
+
+<script>
+(() => {
+  // 게임 데이터 & 상태
+  const seeds = [
+    {name:'Carrot',emoji:'🥕',grade:'Common',growTime:20, value:1},
+    {name:'Strawberry',emoji:'🍓',grade:'Common',growTime:22, value:1},
+    {name:'Blueberry',emoji:'🫐',grade:'Uncommon',growTime:30, value:2},
+    {name:'Orange Tulip',emoji:'🌷',grade:'Uncommon',growTime:28, value:2},
+    {name:'Tomato',emoji:'🍅',grade:'Rare',growTime:45, value:4},
+    {name:'Daffodil',emoji:'🌼',grade:'Rare',growTime:40, value:4},
+    {name:'Watermelon',emoji:'🍉',grade:'Legendary',growTime:90, value:7},
+    {name:'Pumpkin',emoji:'🎃',grade:'Legendary',growTime:85, value:7},
+    {name:'Apple',emoji:'🍎',grade:'Legendary',growTime:80, value:7},
+    {name:'Bamboo',emoji:'🎋',grade:'Legendary',growTime:70, value:7},
+    {name:'Coconut',emoji:'🥥',grade:'Mythical',growTime:120, value:10},
+    {name:'Cactus',emoji:'🌵',grade:'Mythical',growTime:110, value:10},
+    {name:'Dragon Fruit',emoji:'🐉',grade:'Mythical',growTime:130, value:10},
+    {name:'Mango',emoji:'🥭',grade:'Mythical',growTime:115, value:10},
+    {name:'Grape',emoji:'🍇',grade:'Divine',growTime:150, value:15},
+    {name:'Mushroom',emoji:'🍄',grade:'Divine',growTime:140, value:15},
+    {name:'Pepper',emoji:'🌶️',grade:'Divine',growTime:145, value:15},
+    {name:'Cacao',emoji:'🍫',grade:'Divine',growTime:135, value:15},
+    {name:'Beanstalk',emoji:'🌱',grade:'Prismatic',growTime:200, value:25},
+    {name:'Ember Lily',emoji:'🔥',grade:'Prismatic',growTime:190, value:25},
+    {name:'Sugar Apple',emoji:'🍏',grade:'Prismatic',growTime:195, value:25},
+    {name:'Burning Bud',emoji:'🌸',grade:'Prismatic',growTime:185, value:25},
+    {name:'Giant Pinecone',emoji:'🌲',grade:'Prismatic',growTime:210, value:25},
+  ];
+  const pets = [
+    {name:'Moon Cat',emoji:'🐱',rarity:'Rare',autoHarvest:true},
+    {name:'Deer',emoji:'🦌',rarity:'Uncommon',autoHarvest:true},
+    {name:'Axolotl',emoji:'🦎',rarity:'Mythical',autoHarvest:true},
+    {name:'Petal Bee',emoji:'🐝',rarity:'Legendary',autoHarvest:true},
+    {name:'Stegosaurus',emoji:'🦖',rarity:'Divine',autoHarvest:true}
+  ];
+  const gears = [
+    {name:'Basic Sprinkler',effect:'growthBoost',value:0.1,rarity:'Common'},
+    {name:'Advanced Sprinkler',effect:'growthBoost',value:0.25,rarity:'Rare'},
+    {name:'Godly Sprinkler',effect:'growthBoost',value:0.5,rarity:'Mythical'},
+    {name:'Master Sprinkler',effect:'growthBoost',value:0.9,rarity:'Prismatic'}
+  ];
+
+  const gardenSize = 25; // 5x5 grid
+  let currentSeed = null;
+  let money = 10; // 초기 돈
+  let pokedex = new Set();
+  let petsOwned = new Set();
+  let gearsOwned = new Set();
+
+  let weather = {
+    type: 'Clear', // Clear, Rain, MutationStorm
+    mutationActive: false,
+    mutationBonus: 1,
+    changeTime: Date.now() + 5*60*1000
+  };
+
+  const growthIntervals = [];
+  const plantStates = []; // 상태 배열 (null or {seed, plantedTime, growTimeLeft, mutated, favorited})
+
+  const gardenElem = document.getElementById('garden');
+  const moneyDisplay = document.getElementById('moneyDisplay');
+  const seedNameSpan = document.getElementById('seedName');
+  const dexList = document.getElementById('dexList');
+  const weatherDisplay = document.getElementById('weatherDisplay');
+  const petsDisplay = document.getElementById('petsDisplay');
+  const petList = document.getElementById('petList');
+  const gearList = document.getElementById('gearList');
+
+  // 저장/불러오기
+  function saveGame(){
+    const saveData = {
+      money,
+      pokedex: Array.from(pokedex),
+      petsOwned: Array.from(petsOwned),
+      gearsOwned: Array.from(gearsOwned),
+      plantStates,
+      weather,
+      lastSave: Date.now()
+    };
+    localStorage.setItem('gardenSave', JSON.stringify(saveData));
+  }
+  function loadGame(){
+    const saveData = JSON.parse(localStorage.getItem('gardenSave') || '{}');
+    if(saveData.money) money = saveData.money;
+    if(saveData.pokedex) pokedex = new Set(saveData.pokedex);
+    if(saveData.petsOwned) petsOwned = new Set(saveData.petsOwned);
+    if(saveData.gearsOwned) gearsOwned = new Set(saveData.gearsOwned);
+    if(saveData.plantStates) {
+      for(let i=0; i < gardenSize; i++) {
+        plantStates[i] = saveData.plantStates[i] || null;
       }
+    } else {
+      for(let i=0; i < gardenSize; i++) plantStates[i] = null;
     }
+    if(saveData.weather) weather = saveData.weather;
+  }
 
-    function pickRandomSeed() {
-      const chance = Math.random();
-      if (chance < 0.2) {
-        currentSeed = null;
-        seedNameSpan.innerHTML = '<span class="no-stock">No Stock</span>';
-      } else {
-        const picked = seeds[Math.floor(Math.random() * seeds.length)];
-        currentSeed = picked;
-        seedNameSpan.innerHTML = `<span class="${picked.grade}">${picked.emoji} ${picked.name} [${picked.grade}]</span>`;
+  // 도감 업데이트
+  function updatePokedex(seedName) {
+    if(!pokedex.has(seedName)){
+      pokedex.add(seedName);
+      const li = document.createElement('li');
+      li.textContent = seedName;
+      dexList.appendChild(li);
+    }
+  }
+
+  // 씨앗 랜덤 선택(5분마다 리셋)
+  function pickRandomSeed() {
+    const chance = Math.random();
+    if(chance < 0.15){
+      currentSeed = null;
+      seedNameSpan.innerHTML = '<span class="no-stock">No Stock</span>';
+    } else {
+      currentSeed = seeds[Math.floor(Math.random() * seeds.length)];
+      seedNameSpan.innerHTML = `<span class="${currentSeed.grade}">${currentSeed.emoji} ${currentSeed.name} [${currentSeed.grade}]</span>`;
+    }
+  }
+
+  // 성장시간 보정(장비 효과 반영)
+  function getGrowthTime(seed){
+    let base = seed.growTime;
+    let boost = 0;
+    gearsOwned.forEach(g => {
+      const gear = gears.find(x => x.name === g);
+      if(gear && gear.effect === 'growthBoost') boost += gear.value;
+    });
+    // 성장시간 1 - boost 만큼 단축 (최소 20% 남김)
+    const finalTime = base * Math.max(0.2, 1 - boost);
+    return finalTime;
+  }
+
+  // 돈 올리는 보정 (날씨 돌연변이 보정 + 장비)
+  function getValue(seed){
+    let val = seed.value;
+    if(weather.mutationActive) val *= 2; // 돌연변이 시 2배 수익
+    gearsOwned.forEach(g => {
+      const gear = gears.find(x => x.name === g);
+      if(gear && gear.effect === 'valueBoost') val += gear.value;
+    });
+    return val;
+  }
+
+  // 성장 처리 및 UI업데이트
+  function updateGardenUI(){
+    gardenElem.innerHTML = '';
+    for(let i=0; i < gardenSize; i++){
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      const plant = plantStates[i];
+      if(plant){
+        const p = document.createElement('div');
+        p.className = `plant ${plant.seed.grade}`;
+        p.textContent = plant.seed.emoji;
+        if(plant.mutated) p.classList.add('mutated');
+        if(plant.favorited) tile.classList.add('favorited');
+        else tile.classList.remove('favorited');
+        if(plant.growTimeLeft > 0) {
+          tile.classList.add('growing');
+          const remainSec = Math.ceil(plant.growTimeLeft);
+          p.title = `${plant.seed.name} (Growing: ${remainSec}s)`;
+        } else {
+          p.title = `${plant.seed.name} (Ready!)`;
+        }
+        tile.appendChild(p);
       }
-    }
+      // 즐겨찾기 토글 버튼
+      const favBtn = document.createElement('div');
+      favBtn.className = 'favorite-btn' + (plant && plant.favorited ? ' favorited' : '');
+      favBtn.textContent = '★';
+      favBtn.title = 'Toggle Favorite';
+      favBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if(!plant) return;
+        plant.favorited = !plant.favorited;
+        updateGardenUI();
+        saveGame();
+      });
+      tile.appendChild(favBtn);
 
-    function createGarden() {
-      for (let i = 0; i < 25; i++) {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.addEventListener('click', () => {
-          if (!currentSeed || tile.querySelector('.plant')) return;
+      // 클릭 이벤트 (심기, 수확, 펫 자동수확)
+      tile.addEventListener('click', () => {
+        const plant = plantStates[i];
+        if(!currentSeed && !plant) return; // 심을 씨앗 없으면 패스
 
-          const plant = document.createElement('div');
-          plant.className = `plant ${currentSeed.grade}`;
-          plant.textContent = currentSeed.emoji;
-          tile.appendChild(plant);
-
-          money += currentSeed.value;
+        if(plant && plant.growTimeLeft <= 0) {
+          // 수확 가능
+          money += getValue(plant.seed);
           updateMoneyDisplay();
-          updatePokedex(currentSeed.name);
-        });
-        garden.appendChild(tile);
+          updatePokedex(plant.seed.name);
+          // 수확 후 재심기 or 제거
+          if(petsOwned.size > 0 && Array.from(petsOwned).some(pet => pets.find(x => x.name === pet).autoHarvest)) {
+            // 자동 재심기 (펫 있음)
+            plant.growTimeLeft = getGrowthTime(plant.seed);
+            plant.plantedTime = Date.now()/1000;
+            plant.mutated = false;
+          } else {
+            plantStates[i] = null;
+          }
+          updateGardenUI();
+          saveGame();
+        } else if(!plant && currentSeed) {
+          // 심기
+          plantStates[i] = {
+            seed: currentSeed,
+            plantedTime: Date.now()/1000,
+            growTimeLeft: getGrowthTime(currentSeed),
+            mutated: false,
+            favorited: false
+          };
+          updateGardenUI();
+          saveGame();
+        }
+      });
+
+      gardenElem.appendChild(tile);
+    }
+  }
+
+  // 돈 표시 업데이트
+  function updateMoneyDisplay(){
+    moneyDisplay.textContent = `💰 ${money.toFixed(0)}¢`;
+  }
+
+  // 펫 UI 업데이트
+  function updatePetUI(){
+    if(petsOwned.size === 0){
+      petsDisplay.textContent = '🐾 Pets: None';
+      petList.textContent = 'None';
+      return;
+    }
+    const petNames = Array.from(petsOwned).map(p => {
+      const pet = pets.find(x => x.name === p);
+      return pet ? `${pet.emoji} ${pet.name}` : p;
+    });
+    petsDisplay.textContent = `🐾 Pets: ${petNames.join(', ')}`;
+    petList.textContent = petNames.join(', ');
+  }
+
+  // 장비 UI 업데이트
+  function updateGearUI(){
+    if(gearsOwned.size === 0){
+      gearList.textContent = 'None';
+      return;
+    }
+    const gearNames = Array.from(gearsOwned).map(g => {
+      const gear = gears.find(x => x.name === g);
+      return gear ? gear.name : g;
+    });
+    gearList.textContent = gearNames.join(', ');
+  }
+
+  // 성장 타이머 (1초마다 갱신)
+  function tickGrowth(deltaSec){
+    for(let i=0; i < gardenSize; i++){
+      const plant = plantStates[i];
+      if(plant && plant.growTimeLeft > 0){
+        plant.growTimeLeft -= deltaSec;
+        if(plant.growTimeLeft <= 0){
+          plant.growTimeLeft = 0;
+          // 돌연변이 조건 판단
+          if(weather.type === 'MutationStorm' && Math.random() < 0.4) {
+            plant.mutated = true;
+          }
+        }
       }
     }
+  }
 
-    createGarden();
+  // 날씨 변경 (5분마다)
+  function updateWeather(){
+    const now = Date.now();
+    if(now > weather.changeTime){
+      // 새 날씨 랜덤 생성
+      const roll = Math.random();
+      if(roll < 0.6) {
+        weather.type = 'Clear';
+        weather.mutationActive = false;
+        weather.mutationBonus = 1;
+      } else if(roll < 0.9) {
+        weather.type = 'Rain';
+        weather.mutationActive = false;
+        weather.mutationBonus = 1;
+      } else {
+        weather.type = 'MutationStorm';
+        weather.mutationActive = true;
+        weather.mutationBonus = 2;
+      }
+      weather.changeTime = now + 5*60*1000;
+    }
+    weatherDisplay.textContent = `🌤 Weather: ${weather.type}`;
+  }
+
+  // 오프라인 성장 (마지막 저장 이후 경과 시간 계산)
+  function offlineGrowth(){
+    const saveData = JSON.parse(localStorage.getItem('gardenSave') || '{}');
+    if(!saveData.lastSave) return;
+    const elapsed = (Date.now() - saveData.lastSave) / 1000; // 초
+    if(elapsed < 1) return;
+    tickGrowth(elapsed);
+  }
+
+  // 씨앗 상점 변경 (5분마다)
+  function shopTick(){
     pickRandomSeed();
+  }
+
+  // 시작
+  function startGame(){
+    loadGame();
+    offlineGrowth();
     updateMoneyDisplay();
-    setInterval(pickRandomSeed, 5 * 60 * 1000); // 5분마다 씨앗 바꾸기
-  </script>
+    updatePetUI();
+    updateGearUI();
+    updateWeather();
+    updateGardenUI();
+    shopTick();
+    // 타이머 설정
+    let lastTime = Date.now();
+    setInterval(() => {
+      const now = Date.now();
+      const delta = (now - lastTime)/1000;
+      lastTime = now;
+      tickGrowth(delta);
+      updateGardenUI();
+      updateWeather();
+      saveGame();
+    }, 1000);
+    // 씨앗 상점 변경 타이머
+    setInterval(shopTick, 5*60*1000);
+  }
+
+  // 테스트용 펫, 장비 추가 (초기 보유)
+  petsOwned.add('Moon Cat');
+  gearsOwned.add('Basic Sprinkler');
+
+  startGame();
+
+})();
+</script>
+
 </body>
 </html>
