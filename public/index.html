@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>My 2D Garden</title>
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Garden Life" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body {
+      background: linear-gradient(to bottom, #a8e6a2, #f4e2d8);
+      overflow: hidden;
+      height: 100vh;
+    }
+    header {
+      background: linear-gradient(to bottom, #5cb85c, #3e8e41);
+      padding: 10px;
+      color: white;
+      text-align: center;
+      font-size: 1.2em;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    #moneyDisplay {
+      position: fixed;
+      top: 45px;
+      left: 10px;
+      background: #fff;
+      border-radius: 5px;
+      padding: 5px 10px;
+      box-shadow: 1px 1px 3px #aaa;
+      z-index: 10;
+    }
+
+    #garden {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-gap: 5px;
+      padding: 90px 10px 70px;
+    }
+
+    .tile {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: #c19a6b;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .tile:hover {
+      transform: scale(1.03);
+    }
+
+    .plant {
+      position: absolute;
+      width: 70%;
+      left: 15%;
+      bottom: 5%;
+      text-align: center;
+      animation: pop 0.4s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    #seedBox {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #ffffffcc;
+      border-top: 2px solid #ccc;
+      text-align: center;
+      padding: 10px;
+      font-size: 1em;
+    }
+
+    .no-stock {
+      color: red;
+      font-weight: bold;
+    }
+
+    .Common { color: gray; }
+    .Uncommon { color: green; }
+    .Rare { color: blue; }
+    .Legendary { color: orange; }
+    .Mythical { color: purple; }
+    .Divine { color: gold; }
+    .Prismatic { background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; color: transparent; font-weight: bold; }
+
+    #pokedex {
+      position: fixed;
+      top: 45px;
+      right: 10px;
+      background: #fff;
+      border-radius: 5px;
+      padding: 5px 10px;
+      box-shadow: 1px 1px 3px #aaa;
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    #pokedex h3 {
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    #pokedex ul {
+      list-style: none;
+      padding: 0;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <header>🌱 Welcome to My 2D Garden</header>
+  <div id="moneyDisplay">💰 0</div>
+  <div id="pokedex">
+    <h3>📘 도감</h3>
+    <ul id="dexList"></ul>
+  </div>
+  <div id="garden"></div>
+  <div id="seedBox">
+    Current Seed: <span id="seedName">Loading...</span>
+  </div>
+
+  <script>
+    const seedNameSpan = document.getElementById('seedName');
+    const garden = document.getElementById('garden');
+    const moneyDisplay = document.getElementById('moneyDisplay');
+    const dexList = document.getElementById('dexList');
+
+    const seeds = [
+      { name: 'Carrot', emoji: '🥕', grade: 'Common', value: 1 },
+      { name: 'Strawberry', emoji: '🍓', grade: 'Common', value: 1 },
+      { name: 'Blueberry', emoji: '🫐', grade: 'Uncommon', value: 2 },
+      { name: 'Orange Tulip', emoji: '🌷', grade: 'Uncommon', value: 2 },
+      { name: 'Tomato', emoji: '🍅', grade: 'Rare', value: 4 },
+      { name: 'Daffodil', emoji: '🌼', grade: 'Rare', value: 4 },
+      { name: 'Watermelon', emoji: '🍉', grade: 'Legendary', value: 7 },
+      { name: 'Pumpkin', emoji: '🎃', grade: 'Legendary', value: 7 },
+      { name: 'Apple', emoji: '🍎', grade: 'Legendary', value: 7 },
+      { name: 'Bamboo', emoji: '🎋', grade: 'Legendary', value: 7 },
+      { name: 'Coconut', emoji: '🥥', grade: 'Mythical', value: 10 },
+      { name: 'Cactus', emoji: '🌵', grade: 'Mythical', value: 10 },
+      { name: 'Dragon Fruit', emoji: '🐉', grade: 'Mythical', value: 10 },
+      { name: 'Mango', emoji: '🥭', grade: 'Mythical', value: 10 },
+      { name: 'Grape', emoji: '🍇', grade: 'Divine', value: 15 },
+      { name: 'Mushroom', emoji: '🍄', grade: 'Divine', value: 15 },
+      { name: 'Pepper', emoji: '🌶️', grade: 'Divine', value: 15 },
+      { name: 'Cacao', emoji: '🍫', grade: 'Divine', value: 15 },
+      { name: 'Beanstalk', emoji: '🌱', grade: 'Prismatic', value: 25 },
+      { name: 'Ember Lily', emoji: '🔥', grade: 'Prismatic', value: 25 },
+      { name: 'Sugar Apple', emoji: '🍏', grade: 'Prismatic', value: 25 },
+      { name: 'Burning Bud', emoji: '🌸', grade: 'Prismatic', value: 25 },
+      { name: 'Giant Pinecone', emoji: '🌲', grade: 'Prismatic', value: 25 }
+    ];
+
+    let currentSeed = null;
+    let money = 0;
+    let pokedex = new Set();
+
+    function updateMoneyDisplay() {
+      moneyDisplay.textContent = `💰 ${money}`;
+    }
+
+    function updatePokedex(seedName) {
+      if (!pokedex.has(seedName)) {
+        pokedex.add(seedName);
+        const li = document.createElement('li');
+        li.textContent = seedName;
+        dexList.appendChild(li);
+      }
+    }
+
+    function pickRandomSeed() {
+      const chance = Math.random();
+      if (chance < 0.2) {
+        currentSeed = null;
+        seedNameSpan.innerHTML = '<span class="no-stock">No Stock</span>';
+      } else {
+        const picked = seeds[Math.floor(Math.random() * seeds.length)];
+        currentSeed = picked;
+        seedNameSpan.innerHTML = `<span class="${picked.grade}">${picked.emoji} ${picked.name} [${picked.grade}]</span>`;
+      }
+    }
+
+    function createGarden() {
+      for (let i = 0; i < 25; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.addEventListener('click', () => {
+          if (!currentSeed || tile.querySelector('.plant')) return;
+
+          const plant = document.createElement('div');
+          plant.className = `plant ${currentSeed.grade}`;
+          plant.textContent = currentSeed.emoji;
+          tile.appendChild(plant);
+
+          money += currentSeed.value;
+          updateMoneyDisplay();
+          updatePokedex(currentSeed.name);
+        });
+        garden.appendChild(tile);
+      }
+    }
+
+    createGarden();
+    pickRandomSeed();
+    updateMoneyDisplay();
+    setInterval(pickRandomSeed, 5 * 60 * 1000); // 5분마다 씨앗 바꾸기
+  </script>
+</body>
+</html>
